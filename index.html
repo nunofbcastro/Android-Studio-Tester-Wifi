@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Android Studio Tester Wifi</title>
+    <script src="js/sweetalert2@9.js"></script>
+    <style>
+        .button {
+          background-color: #4CAF50;
+          border: none;
+          color: white;
+          padding: 15px 32px;
+          text-align: center;
+          text-decoration: none;
+          display: inline-block;
+          font-size: 16px;
+          margin: 4px 2px;
+          cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <label for="fname">ADB folder</label>
+    <input type="text" id="abd" name="abd" required><br><br>
+    <label for="lname">Mobile IP:</label>
+    <input type="text" id="ip" name="ip" required><br><br>    
+    <button class="button" onclick="Execultar()">Ligar</button>
+</body>
+
+<script>
+    var fs = require("fs");
+
+    ler();
+
+    function escrever(ip,abd){
+        fs.writeFile('arquivo/ip.txt', ip, function(err) {
+            if (err) {
+            return console.error(err);
+            }
+        });
+
+        fs.writeFile('arquivo/abd.txt', abd, function(err) {
+            if (err) {
+            return console.error(err);
+            }
+        });
+    }
+
+    function ler(){
+        fs.readFile('arquivo/ip.txt', function (err, data) {
+            if (err) {
+                return console.error(err);
+            }
+            document.getElementById('ip').value=data.toString();
+        });
+
+        fs.readFile('arquivo/abd.txt', function (err, data) {
+            if (err) {
+                return console.error(err);
+            }
+            document.getElementById('abd').value=data.toString();
+        });
+    }
+
+    function Execultar(){
+        ip=document.getElementById('ip').value;
+        abd=document.getElementById('abd').value;
+        abd1=abd.substr(0, 1);
+
+        abdteste=abd.substr(1, 2);
+
+        ipteste=ip.replace(".",0);
+        ipteste=ipteste.replace(".",0);
+        ipteste=ipteste.replace(".",0);
+        ipteste1=ip.split('.').length-1;
+
+        if(abdteste!=":\\"){
+            erro("Enter a valid path");
+        }else if(ip.length>15 || ip.length<6 || isNaN(ipteste) || ipteste1!=3){            
+            erro("Enter a valid IP");
+        }else{
+            var exec = require('child_process').exec;
+            const cmd = abd1+': & cd '+abd+' & adb kill-server & adb tcpip 5555 & adb connect '+ip+':5555';
+            exec(cmd, {
+                cwd: __dirname
+            }, (err, stdout, stderr) => {
+                console.log(stdout);
+                if (err) console.log(err);
+                else runCommand(cmds, cb);
+            });
+            escrever(ip,abd);
+            certo();
+        }
+    }
+    
+    function erro(text) {
+        Swal.fire({
+            icon: 'error',
+            title: text,
+            showCancelButton: false,
+            confirmButtonColor: '#3085d6',
+        }).then((result) => {
+            
+        });
+    }
+    
+    function certo() {
+        Swal.fire({
+            icon: 'success',
+            title: 'Connected.',
+            showCancelButton: false,
+            confirmButtonColor: '#3085d6',
+        }).then((result) => {
+        });
+    }
+
+</script>
+
+</html>
